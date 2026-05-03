@@ -81,7 +81,14 @@ public sealed class AnalyzeCommand
             var gcode = ReadInput(arguments.FilePath);
             var layers = _gcodeParser.Parse(gcode);
             var report = _analyzer.Analyze(new ToolpathIndex(layers), arguments.Options);
-            var output = SelectReportWriter(arguments.Format).Write(new ReportRenderContext(arguments.FilePath, arguments, report));
+            var resolvedPath = Path.GetFullPath(arguments.FilePath);
+            var output = SelectReportWriter(arguments.Format).Write(
+                new ReportRenderContext(
+                    InputFileName: Path.GetFileName(resolvedPath),
+                    InputPath: NormalizeDisplayPath(arguments.FilePath),
+                    InputSizeBytes: new FileInfo(resolvedPath).Length,
+                    Arguments: arguments,
+                    Report: report));
             WriteOutput(arguments.OutputPath, output);
             return DetermineExitCode(report, arguments.FailOn);
         }
@@ -174,6 +181,13 @@ public sealed class AnalyzeCommand
             FailOnMode.Critical when hasCritical => 2,
             _ => 0,
         };
+    }
+
+    private static string NormalizeDisplayPath(string inputPath)
+    {
+        return Path.IsPathRooted(inputPath)
+            ? Path.GetFileName(inputPath)
+            : inputPath;
     }
 
     private sealed class CliInputReadException : Exception

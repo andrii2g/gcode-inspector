@@ -6,9 +6,9 @@ public sealed class ToolInfoProvider
 {
     public string GetVersion()
     {
-        return Assembly.GetExecutingAssembly()
+        return typeof(ToolInfoProvider).Assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
             .InformationalVersion
-            ?? "0.1.0";
+            ?? throw new InvalidOperationException("Assembly informational version is missing.");
     }
 }
