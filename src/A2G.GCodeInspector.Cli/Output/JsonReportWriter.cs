@@ -112,10 +112,13 @@ public sealed class JsonReportWriter : IReportWriter
 
     private static SortedDictionary<string, double> CreateOrderedMetrics(IReadOnlyDictionary<string, double> metrics)
     {
-        return metrics.ToSortedDictionary(
-            entry => entry.Key,
-            entry => Round(entry.Value),
-            StringComparer.Ordinal);
+        var ordered = new SortedDictionary<string, double>(StringComparer.Ordinal);
+        foreach (var entry in metrics)
+        {
+            ordered[entry.Key] = Round(entry.Value);
+        }
+
+        return ordered;
     }
 
     private static double Round(double value)

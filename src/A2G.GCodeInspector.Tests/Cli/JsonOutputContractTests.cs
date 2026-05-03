@@ -108,7 +108,7 @@ public sealed class JsonOutputContractTests
             ExtrusionDeltaMm: 1.0,
             FeedRateMmPerMinute: null,
             RawCommentContext: null);
-        var layer = new PrintLayer(3, 2.3456, 3, null, null, null, [segment]);
+        var layer = new PrintLayer(3, 3, 2.3456, null, null, [segment]);
         var index = new ToolpathIndex([layer]);
         var finding = new RiskFinding(
             Id: "BR001-0001",
@@ -166,25 +166,75 @@ public sealed class JsonOutputContractTests
     public void AbsoluteInputPathIsReducedToFileName()
     {
         using var file = TempFile.Create(BridgeFixture);
-        var json = WriteReport(CreateReportContext(file.Path, file.FileName));
+        var command = CreateAnalyzeCommand(out var stdout, out _);
+        var exitCode = command.Execute(
+            [
+                file.Path,
+                "--format",
+                "json",
+                "--max-bridge-span-warning",
+                "10",
+                "--max-bridge-span-critical",
+                "20",
+                "--sample-spacing-mm",
+                "12",
+                "--angle-step-degrees",
+                "45",
+            ]);
+        var json = stdout.ToString();
         using var document = JsonDocument.Parse(json);
 
+        Assert.Equal(0, exitCode);
         Assert.Equal(file.FileName, document.RootElement.GetProperty("file").GetProperty("path").GetString());
     }
 
     [Fact]
     public void RelativeInputPathIsPreserved()
     {
-        using var file = TempFile.Create(BridgeFixture);
-        var json = WriteReport(CreateReportContext(file.Path, "fixtures/sample.gcode"));
+        using var file = TempFile.CreateInCurrentDirectory(BridgeFixture);
+        var command = CreateAnalyzeCommand(out var stdout, out _);
+        var exitCode = command.Execute(
+            [
+                file.FileName,
+                "--format",
+                "json",
+                "--max-bridge-span-warning",
+                "10",
+                "--max-bridge-span-critical",
+                "20",
+                "--sample-spacing-mm",
+                "12",
+                "--angle-step-degrees",
+                "45",
+            ]);
+        var json = stdout.ToString();
         using var document = JsonDocument.Parse(json);
 
-        Assert.Equal("fixtures/sample.gcode", document.RootElement.GetProperty("file").GetProperty("path").GetString());
+        Assert.Equal(0, exitCode);
+        Assert.Equal(file.FileName, document.RootElement.GetProperty("file").GetProperty("path").GetString());
     }
 
     private string WriteReport(ReportRenderContext context)
     {
         return _writer.Write(context);
+    }
+
+    private static AnalyzeCommand CreateAnalyzeCommand(out StringWriter stdout, out StringWriter stderr)
+    {
+        stdout = new StringWriter();
+        stderr = new StringWriter();
+
+        return new AnalyzeCommand(
+            new GCodeParser(),
+            new GCodeAnalyzer(),
+            new CliArgumentParser(),
+            new ConsoleReportWriter(),
+            new MarkdownReportWriter(),
+            new JsonReportWriter(new ToolInfoProvider()),
+            File.ReadAllText,
+            File.WriteAllText,
+            stdout,
+            stderr);
     }
 
     private ReportRenderContext CreateReportContext(string filePath, string displayPath, bool noFindings = false)
@@ -251,6 +301,13 @@ public sealed class JsonOutputContractTests
         public static TempFile Create(string contents)
         {
             var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{Guid.NewGuid():N}.gcode");
+            File.WriteAllText(path, contents);
+            return new TempFile(path);
+        }
+
+        public static TempFile CreateInCurrentDirectory(string contents)
+        {
+            var path = System.IO.Path.Combine(Environment.CurrentDirectory, $"{Guid.NewGuid():N}.gcode");
             File.WriteAllText(path, contents);
             return new TempFile(path);
         }
