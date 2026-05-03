@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\A2G.GCodeInspector.Core\A2G.GCodeInspector.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <PackAsTool>true</PackAsTool>
+    <PackageId>A2G.GCodeInspector.Cli</PackageId>
+    <TargetFramework>net10.0</TargetFramework>
+    <ToolCommandName>gcode-inspector</ToolCommandName>
+  </PropertyGroup>
+
+</Project>
