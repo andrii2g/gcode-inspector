@@ -105,7 +105,7 @@ public sealed class BR002BridgeAngleCandidateRule : IGCodeRule
             $"candidateAngles={candidateAngles}",
         };
 
-        if (candidates.Length > 1)
+        if (candidates.Count > 1)
         {
             evidence.Add($"secondaryCandidateAngleDegrees={candidates[1].AngleDegrees.ToString("0.##", CultureInfo.InvariantCulture)}");
             evidence.Add($"secondaryEstimatedUnsupportedSpanMm={candidates[1].EstimatedUnsupportedSpanMm.ToString("0.##", CultureInfo.InvariantCulture)}");

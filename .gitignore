@@ -5,6 +5,8 @@ obj/
 .vscode/
 .dotnet-home/
 .nuget-packages/
+.nuget-http-cache/
+.tmp/
 report.json
 report.md
 .editorconfig
