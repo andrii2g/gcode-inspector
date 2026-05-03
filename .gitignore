@@ -1,1 +1,10 @@
+bin/
+obj/
+.vs/
+.idea/
+.vscode/
 .dotnet-home/
+.nuget-packages/
+report.json
+report.md
+.editorconfig
