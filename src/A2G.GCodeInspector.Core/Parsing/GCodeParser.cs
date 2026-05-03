@@ -8,6 +8,7 @@ namespace A2G.GCodeInspector.Core.Parsing;
 public sealed class GCodeParser
 {
     private const double LayerHeightToleranceMm = 0.001;
+    private readonly SlicerCommentClassifier _commentClassifier = new();
 
     public IReadOnlyList<PrintLayer> Parse(string text)
     {
@@ -32,7 +33,7 @@ public sealed class GCodeParser
             .ToArray();
     }
 
-    private static void ProcessLine(
+    private void ProcessLine(
         string rawLine,
         int lineNumber,
         List<LayerBuilder> builders,
@@ -235,7 +236,7 @@ public sealed class GCodeParser
         return new GCodeCommand(lineNumber, opcode, parameters, comment);
     }
 
-    private static MachineState ApplyCommentMetadata(string comment, MachineState state)
+    private MachineState ApplyCommentMetadata(string comment, MachineState state)
     {
         if (comment.Equals("LAYER_CHANGE", StringComparison.OrdinalIgnoreCase))
         {
@@ -260,12 +261,16 @@ public sealed class GCodeParser
             return state with { PendingLayerHeight = height };
         }
 
-        if (TryParseCommentValue(comment, "TYPE:", out var rawFeatureType))
+        if (_commentClassifier.TryClassifyFeatureType(
+                comment,
+                out var featureType,
+                out var rawFeatureType,
+                out _))
         {
             return state with
             {
-                CurrentFeatureType = ClassifyFeatureType(rawFeatureType),
-                CurrentRawFeatureType = rawFeatureType.Trim(),
+                CurrentFeatureType = featureType,
+                CurrentRawFeatureType = rawFeatureType,
             };
         }
 
@@ -282,24 +287,6 @@ public sealed class GCodeParser
 
         value = string.Empty;
         return false;
-    }
-
-    private static FeatureType ClassifyFeatureType(string rawFeatureType)
-    {
-        return rawFeatureType.Trim().ToUpperInvariant() switch
-        {
-            "BRIDGE INFILL" => FeatureType.BridgeInfill,
-            "INTERNAL BRIDGE INFILL" => FeatureType.InternalBridgeInfill,
-            "OVERHANG PERIMETER" => FeatureType.OverhangPerimeter,
-            "INTERNAL INFILL" => FeatureType.InternalInfill,
-            "SOLID INFILL" => FeatureType.SolidInfill,
-            "TOP SOLID INFILL" => FeatureType.TopSolidInfill,
-            "PERIMETER" => FeatureType.Perimeter,
-            "EXTERNAL PERIMETER" => FeatureType.ExternalPerimeter,
-            "SUPPORT MATERIAL" => FeatureType.SupportMaterial,
-            "SUPPORT MATERIAL INTERFACE" => FeatureType.SupportMaterialInterface,
-            _ => FeatureType.Unknown,
-        };
     }
 
     private static double ResolveAxis(
