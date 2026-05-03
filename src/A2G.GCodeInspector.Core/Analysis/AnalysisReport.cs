@@ -21,7 +21,7 @@ public sealed record AnalysisSummary(
     {
         return new AnalysisSummary(
             Layers: toolpathIndex.Layers.Count,
-            Segments: toolpathIndex.AllSegments.Count,
+            Segments: toolpathIndex.Segments.Count,
             Findings: FindingSummary.From(findings));
     }
 }
