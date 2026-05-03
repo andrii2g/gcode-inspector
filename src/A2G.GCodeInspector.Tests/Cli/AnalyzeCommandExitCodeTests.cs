@@ -91,6 +91,55 @@ public sealed class AnalyzeCommandExitCodeTests
     }
 
     [Fact]
+    public void MarkdownOutputWritesFile()
+    {
+        using var file = TempFile.Create(WarningFixture);
+        using var output = TempFile.Create(string.Empty, ".md");
+        var command = CreateCommand(out _, out _);
+
+        var exitCode = command.Execute(
+            [
+                file.Path,
+                "--format",
+                "markdown",
+                "--output",
+                output.Path,
+                "--max-bridge-span-warning",
+                "10",
+                "--max-bridge-span-critical",
+                "50",
+                "--sample-spacing-mm",
+                "12",
+            ]);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains("# GCode Inspector Report", File.ReadAllText(output.Path), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void TextOutputWritesStdoutWhenOutputIsOmitted()
+    {
+        using var file = TempFile.Create(WarningFixture);
+        var command = CreateCommand(out var stdout, out _);
+
+        var exitCode = command.Execute(
+            [
+                file.Path,
+                "--format",
+                "text",
+                "--max-bridge-span-warning",
+                "10",
+                "--max-bridge-span-critical",
+                "50",
+                "--sample-spacing-mm",
+                "12",
+            ]);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains("GCode Inspector analysis", stdout.ToString(), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void FailOnNoneReturnsZeroWithCriticalFindings()
     {
         using var file = TempFile.Create(CriticalFixture);
@@ -246,9 +295,9 @@ public sealed class AnalyzeCommandExitCodeTests
 
         public string Path { get; }
 
-        public static TempFile Create(string contents)
+        public static TempFile Create(string contents, string extension = ".gcode")
         {
-            var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{Guid.NewGuid():N}.gcode");
+            var path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"{Guid.NewGuid():N}{extension}");
             File.WriteAllText(path, contents);
             return new TempFile(path);
         }
