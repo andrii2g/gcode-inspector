@@ -154,7 +154,6 @@ public sealed class BR001LongUnsupportedBridgeRuleTests
             Evaluate(
                 """
                 G92 X0 Y10
-                ;TYPE:Perimeter
                 G1 X5 Y10 Z0.2 E1.0
                 ;LAYER_CHANGE
                 G92 X0 Y0

@@ -66,6 +66,14 @@ NuGet tool package ID: A2G.GCodeInspector.Cli
 CLI command:           gcode-inspector
 ```
 
+Rule ID guidance:
+
+```text
+BR = bridge-rule family prefix.
+BR001 = Long unsupported bridge.
+BR002 = Bridge angle candidate.
+```
+
 Do not use any earlier candidate repository names in implementation files, docs, CI, package IDs, namespaces, command names, or examples.
 
 ---

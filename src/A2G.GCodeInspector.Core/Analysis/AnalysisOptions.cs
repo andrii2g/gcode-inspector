@@ -5,4 +5,6 @@ public sealed record AnalysisOptions(
     double MaxBridgeSpanCriticalMm = 50.0,
     double SupportToleranceMm = 0.45,
     double SampleSpacingMm = 1.0,
-    bool DetectHeuristicBridges = true);
+    bool DetectHeuristicBridges = true,
+    double AngleStepDegrees = 45.0,
+    double AngleMinImprovementPercent = 20.0);
