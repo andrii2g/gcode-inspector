@@ -318,7 +318,8 @@ public sealed class GCodeParserTests
             """);
 
         Assert.Single(layers);
-        Assert.Equal(2, layers[0].Segments.Count);
+        Assert.Equal(3, layers[0].Segments.Count);
+        Assert.Equal(0.2, layers[0].Segments[^1].ZMm);
     }
 
     [Fact]
