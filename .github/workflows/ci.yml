@@ -22,7 +22,7 @@ jobs:
         run: dotnet restore src/A2G.GCodeInspector.Tests/A2G.GCodeInspector.Tests.csproj --configfile NuGet.Config
 
       - name: Build
-        run: dotnet build gcode-inspector.sln --no-restore --configuration Release
+        run: dotnet build gcode-inspector.slnx --no-restore --configuration Release
 
       - name: Test
         run: dotnet test src/A2G.GCodeInspector.Tests/A2G.GCodeInspector.Tests.csproj --no-build --configuration Release

@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/A2G.GCodeInspector.Cli/A2G.GCodeInspector.Cli.csproj" />
+    <Project Path="src/A2G.GCodeInspector.Core/A2G.GCodeInspector.Core.csproj" />
+    <Project Path="src/A2G.GCodeInspector.Tests/A2G.GCodeInspector.Tests.csproj" />
+  </Folder>
+</Solution>
